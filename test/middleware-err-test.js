@@ -19,11 +19,11 @@ var os = require('os');
 var fs = require('fs');
 
 // parse multipart/form-data params and files wtitten to tmp dir.
+app.use(autoReap);
 var upload = multer({ dest:  os.tmpdir()});
 app.use(upload.any());
 
 // cleanup uploaded files on response end
-app.use(autoReap);
 
 var uploadHandler = function uploadHander(req, res, next) {
 	var file = null;

@@ -1,6 +1,7 @@
 var fs = require('fs'),
 	  util = require('util'),
-	  finished = require('finished'),
+	  expressEnd = require('express-end'),
+	  compose = require('compose-middleware').compose,
 	  debug = require('debug')('multer-autoreap:middleware');
 
 
@@ -14,7 +15,7 @@ var options = Object.create(defaults);
 // auto remove any uploaded files on response end
 // to persist uploaded files, simply move them to a permanent location,
 // or delete the req.files[key] before the response end.
-module.exports = function(req, res, next) {
+var autoreap = function(req, res, next) {
 
 	var processFile = function processFile(err, file) {
 		if (err && (options && !options.reapOnError)) {
@@ -42,24 +43,23 @@ module.exports = function(req, res, next) {
 					file.forEach(function(file) {
 						processFile(err, file);
 					});
-					done.push(key);
-				}
-			}
-		}
-		if (typeof req.file === "object") {
-			file = req.file;
-			processFile(err, file);
-		}
-	};
+                    done.push(key);
+                }
+            }
+        }
+        if (typeof req.file === "object") {
+            file = req.file;
+            processFile(err, file);
+        }
+    };
 
-	res.on('error', function(err) {
-		reapFiles(err);
-	});
+    res.on('error', reapFiles);
+    res.once('end', reapFiles);
 
-	finished(res, reapFiles);
-	next();
+    next();
 
-};
+}
+module.exports = compose([expressEnd, autoreap]);
 
 
 Object.defineProperty(module.exports, 'options', {
