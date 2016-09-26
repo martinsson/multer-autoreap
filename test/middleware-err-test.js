@@ -23,6 +23,9 @@ var upload = multer({ dest:  os.tmpdir()});
 app.use(upload.any());
 
 // cleanup uploaded files on response end
+var expressEnd = require('express-end')
+
+app.use(expressEnd)
 app.use(autoReap);
 
 var uploadHandler = function uploadHander(req, res, next) {
