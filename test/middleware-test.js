@@ -13,11 +13,12 @@ var autoReap = require('../');
 // Dummy http server.
 var app = express();
 var os = require('os');
+var expressEnd = require('express-end')
 
 // parse multipart/form-data params and files wtitten to tmp dir.
 var upload = multer({ dest:  os.tmpdir()});
 app.use(upload.any());
-
+app.use(expressEnd)
 // cleanup uploaded files on response end
 app.use(autoReap);
 
